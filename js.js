@@ -1,17 +1,23 @@
 
 
 var grausMax = null
-  var grausMin = null
-  var prob = null
-  var descricao = null
-  var icon = null
-  var cidade = null
+var grausMin = null
+var prob = null
+var descricao = null
+var icon = null
+var cidade = null
+var sunset = null
+var sunrise = null
+var vento = null
+var lua = null
+var visibilidade = null
+var cityInput = null
 
- function search() {
-    var cityInput = document.getElementById('cityInput');
-    console.log("1")
-      var city = cityInput.value.replace(/\s/g, '');
-      fetch('https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/' +city + '?key=QMN8JGBAF56D8TDT6EVB9QSWP&lang=pt')
+document.addEventListener("DOMContentLoaded", search(true));
+
+ function search(num) {
+  num == true ? cityInput ="brasil" : cityInput = document.getElementById('cityInput').value.replace(/\s/g, '');
+      fetch('https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/' +cityInput + '?key=QMN8JGBAF56D8TDT6EVB9QSWP&lang=pt')
       .then(response => response.json())
       .then(data => {
         console.log(data); // Aqui você pode trabalhar com os dados recebidos
@@ -37,13 +43,27 @@ var grausMax = null
     cardContainer.append(card);
   
     for (var i = 0; i <= 6; i++) {
-      
+
+      if (data.days[i].moonphase >=0.75){
+        lua = "Minguante"
+      }else if (data.days[i].moonphase >=0.50){
+        lua = "Cheia"
+      }else if(data.days[i].moonphase >=0.25){
+        lua = "Crescente"
+      }else{
+        lua = "Nova"
+      }
+
       grausMax = ((data.days[i].tempmax) - 32) * 5/9;
       grausMin = ((data.days[i].tempmin) - 32) * 5/9;
       prob = data.days[i].precipprob
       descricao = data.days[i].description
       icon = data.days[i].icon
       dia = data.days[i].datetime.slice(-2)
+      sunset = data.days[i].sunset.slice(0, 5)
+      sunrise = data.days[i].sunrise.slice(0, 5)
+      vento = data.days[i].windspeed 
+      visibilidade = data.days[i].visibility
       console.log(icon)
       var cardContainer = $(".card-container");
 
@@ -98,8 +118,80 @@ var grausMax = null
         </div>
       </div>
     </div>
-    <div value="${i}" class="card-footer card_${i} text-muted" style="display: none;">
-    2 days ago
+    <div value="${i}" class="card-footer card_${i}">
+      <div class="row">
+        <div class="col-3">
+          <div class="row">
+            <div class="col-1">
+              <span class="variables-border-identifier sol"></span>
+            </div>
+            <div class="col-7 ">
+              <div class="row" >
+                <div class="col-12 "style="margin-left: -0.938rem;">
+                  <h6>Sol</h6>
+                </div>
+                <div class="col-12" id="min" style="margin-left: -0.938rem;">
+                  <img src="2nd Set - Color/sunset.png" style="width: 2rem;" alt=""> <small>${sunrise}-${sunset}</small>
+                </div> 
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="row">
+            <div class="col-1">
+              <span class="variables-border-identifier vento"></span>
+            </div>
+            <div class="col-7 ">
+              <div class="row" >
+                <div class="col-12 "style="margin-left: -0.938rem;">
+                  <h6>Vento</h6>
+                </div>
+                <div class="col-12" id="min" style="margin-left: -0.938rem;">
+                  <i class="fa-solid fa-wind fa-xl"></i>
+                  ${vento} Km/h
+                </div> 
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="row">
+            <div class="col-1">
+              <span class="variables-border-identifier lua"></span>
+            </div>
+            <div class="col-7 ">
+              <div class="row" >
+                <div class="col-12 "style="margin-left: -0.938rem;">
+                  <h6>${lua}</h6>
+                </div>
+                <div class="col-12" id="min" style="margin-left: -0.938rem;">
+                  <i class="fa-regular fa-moon fa-xl"></i>
+                   Cheia
+                </div> 
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="row">
+            <div class="col-1">
+              <span class="variables-border-identifier visibilidade"></span>
+            </div>
+            <div class="col-7 ">
+              <div class="row" >
+                <div class="col-12 "style="margin-left: -0.938rem;">
+                  <h6>Visibilidade</h6>
+                </div>
+                <div class="col-12" id="min" style="margin-left: -0.938rem;">
+                  <i class="fa-solid fa-eye fa-xl"></i>
+                  ${visibilidade}KM
+                </div> 
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
   </div>
     </div>
 
@@ -107,6 +199,7 @@ var grausMax = null
 
       cardContainer.append(card);
     }
+    $(".card-footer").hide()
   }
 
 function mais(num){
